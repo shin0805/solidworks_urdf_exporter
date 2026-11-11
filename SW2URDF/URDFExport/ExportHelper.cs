@@ -469,18 +469,29 @@ namespace SW2URDF.URDFExport
         
             logger.Info(link.Name + ": Reference geometry name " + names["component"]);
         
-            CommonSwOperations.ShowComponents(ActiveSWModel, link.SWComponents);
+            // Show only the components belonging to this link.
+            CommonSwOperations.ShowComponents(
+                ActiveSWModel,
+                link.SWComponents);
         
             int saveOptions =
                 (int)swSaveAsOptions_e.swSaveAsOptions_Silent |
                 (int)swSaveAsOptions_e.swSaveAsOptions_Copy;
         
-            // Use the same output coordinate system mechanism as STL.
-            // We will first test whether SolidWorks applies this to GLB export as well.
+            // Try using the same output coordinate system mechanism as STL.
             SetLinkSpecificSTLPreferences(
                 names["geo"],
                 link.STLQualityFine,
                 ActiveDoc);
+        
+            // IMPORTANT:
+            // GLB export uses the currently selected assembly components.
+            // ShowComponents() performs a selection internally, but explicitly
+            // select them again immediately before SaveAs().
+            CommonSwOperations.SelectComponents(
+                ActiveSWModel,
+                link.SWComponents,
+                true);
         
             logger.Info("Saving GLB to " + windowsMeshFilename);
         
