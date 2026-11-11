@@ -13,18 +13,26 @@ namespace SW2URDF.URDFExport
 {
     internal sealed class GlbMesh
     {
+        private const int MaxTrianglesPerChunk = 60000;
+        
         private sealed class MaterialEntry
         {
             public double[] Color;
             public MaterialBuilder Material;
+        
+            public int MaterialIndex;
+            public int NextChunkIndex;
+            public int TriangleCountInChunk;
+        
+            public MeshBuilder<VertexPositionNormal, VertexEmpty, VertexEmpty> CurrentMesh;
         }
-
-        private readonly MeshBuilder<VertexPositionNormal, VertexEmpty, VertexEmpty> mesh =
-            new MeshBuilder<VertexPositionNormal, VertexEmpty, VertexEmpty>("mesh");
-
+        
+        private readonly List<MeshBuilder<VertexPositionNormal, VertexEmpty, VertexEmpty>> meshes =
+            new List<MeshBuilder<VertexPositionNormal, VertexEmpty, VertexEmpty>>();
+        
         private readonly List<MaterialEntry> materials =
             new List<MaterialEntry>();
-
+        
         private int triangleCount;
 
         internal void AddFace(
@@ -48,15 +56,12 @@ namespace SW2URDF.URDFExport
             }
 
             color = ColladaMesh.SelectColor(color);
+            
+            MaterialEntry materialEntry = GetMaterialEntry(color);
+            
+            Matrix<double> linear = transform.SubMatrix(0, 3, 0, 3);
 
-            MaterialBuilder material = GetMaterial(color);
-            var primitive = mesh.UsePrimitive(material);
-
-            Matrix<double> linear =
-                transform.SubMatrix(0, 3, 0, 3);
-
-            Matrix<double> normalTransform =
-                linear.Inverse().Transpose();
+            Matrix<double> normalTransform = linear.Inverse().Transpose();
 
             bool mirrored = linear.Determinant() < 0;
 
@@ -133,21 +138,32 @@ namespace SW2URDF.URDFExport
                         }
                     }
 
-                    vertices[outputVertex] =
-                        new VertexPositionNormal(
-                            (float)points[vertex][0],
-                            (float)points[vertex][1],
-                            (float)points[vertex][2],
-                            (float)normal[0],
-                            (float)normal[1],
-                            (float)normal[2]);
+                vertices[outputVertex] =
+                    new VertexPositionNormal(
+                        (float)points[vertex][0],
+                        (float)points[vertex][1],
+                        (float)points[vertex][2],
+                        (float)normal[0],
+                        (float)normal[1],
+                        (float)normal[2]);
                 }
-
+                
+                if (materialEntry.CurrentMesh == null ||
+                    materialEntry.TriangleCountInChunk >= MaxTrianglesPerChunk)
+                {
+                    StartNewChunk(materialEntry);
+                }
+                
+                var primitive =
+                    materialEntry.CurrentMesh.UsePrimitive(
+                        materialEntry.Material);
+                
                 primitive.AddTriangle(
                     vertices[0],
                     vertices[1],
                     vertices[2]);
-
+                
+                materialEntry.TriangleCountInChunk++;
                 triangleCount++;
             }
         }
@@ -159,27 +175,32 @@ namespace SW2URDF.URDFExport
                 throw new InvalidDataException(
                     "The link has no triangles to export as GLB.");
             }
-
+        
             var scene = new SceneBuilder();
-
-            scene.AddRigidMesh(
-                mesh,
-                System.Numerics.Matrix4x4.Identity);
-
+        
+            foreach (var mesh in meshes)
+            {
+                scene.AddRigidMesh(
+                    mesh,
+                    System.Numerics.Matrix4x4.Identity);
+            }
+        
             scene.ToGltf2().SaveGLB(path);
         }
 
-        private MaterialBuilder GetMaterial(double[] color)
+        private MaterialEntry GetMaterialEntry(double[] color)
         {
             MaterialEntry existing =
                 materials.FirstOrDefault(
                     entry => entry.Color.SequenceEqual(color));
-
+        
             if (existing != null)
-                return existing.Material;
-
+                return existing;
+        
+            int materialIndex = materials.Count;
+        
             var material =
-                new MaterialBuilder("material" + materials.Count)
+                new MaterialBuilder("material" + materialIndex)
                     .WithChannelParam(
                         KnownChannel.BaseColor,
                         KnownProperty.RGBA,
@@ -189,14 +210,35 @@ namespace SW2URDF.URDFExport
                             (float)color[2],
                             1.0f))
                     .WithDoubleSide(true);
-
-            materials.Add(new MaterialEntry
+        
+            var entry = new MaterialEntry
             {
                 Color = color.ToArray(),
-                Material = material
-            });
-
-            return material;
+                Material = material,
+                MaterialIndex = materialIndex,
+                NextChunkIndex = 0,
+                TriangleCountInChunk = 0,
+                CurrentMesh = null
+            };
+        
+            materials.Add(entry);
+        
+            return entry;
+        }
+        
+        private void StartNewChunk(MaterialEntry entry)
+        {
+            entry.CurrentMesh =
+                new MeshBuilder<VertexPositionNormal, VertexEmpty, VertexEmpty>(
+                    "mesh-" +
+                    entry.MaterialIndex +
+                    "-chunk-" +
+                    entry.NextChunkIndex);
+        
+            entry.NextChunkIndex++;
+            entry.TriangleCountInChunk = 0;
+        
+            meshes.Add(entry.CurrentMesh);
         }
     }
 }
