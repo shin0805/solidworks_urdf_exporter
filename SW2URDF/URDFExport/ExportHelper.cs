@@ -485,10 +485,23 @@ namespace SW2URDF.URDFExport
                 ActiveDoc);
         
             // IMPORTANT:
-            // GLB export uses the currently selected assembly components.
+            // GLB export uses the currently selected bodies.
             // ShowComponents() performs a selection internally, but explicitly
             // select them again immediately before SaveAs().
             SelectGlbBodies(link.SWComponents);
+
+            int selectedBodyCount = ActiveSWModel.SelectionManager.GetSelectedObjectCount2(-1);
+            
+            logger.Info(
+                "Selected " + selectedBodyCount +
+                " bodies for GLB export of " + link.Name);
+            
+            if (selectedBodyCount == 0)
+            {
+                throw new InvalidOperationException(
+                    "No bodies were selected for GLB export of " +
+                    link.Name);
+            }
         
             logger.Info("Saving GLB to " + windowsMeshFilename);
         
