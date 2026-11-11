@@ -192,7 +192,7 @@ namespace SW2URDF.URDFExport
         {
             MaterialEntry existing =
                 materials.FirstOrDefault(
-                    entry => entry.Color.SequenceEqual(color));
+                    item => item.Color.SequenceEqual(color));
         
             if (existing != null)
                 return existing;
