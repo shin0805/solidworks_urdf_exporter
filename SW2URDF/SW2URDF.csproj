@@ -333,13 +333,15 @@
     <Compile Include="Test\TestCollada.cs" />
     <Compile Include="Test\TestStlSimplifier.cs" />
     <Compile Include="URDFExport\ColladaMesh.cs" />
+    <Compile Include="URDFExport\GlbMesh.cs" />
+    <Compile Include="URDFExport\ExportHelperCollada.cs" />
+    <Compile Include="URDFExport\ExportHelperGlb.cs" />
     <Compile Include="URDFExport\StlSimplifier.cs" />
     <Content Include="ThirdParty\geometry3Sharp-LICENSE.txt">
       <Link>geometry3Sharp-LICENSE.txt</Link>
       <TargetPath>geometry3Sharp-LICENSE.txt</TargetPath>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Compile Include="URDFExport\ExportHelperCollada.cs" />
     <Compile Include="Test\TestLogger.cs" />
     <Compile Include="Test\TestMathOps.cs" />
     <Compile Include="Test\TestPropertyManager.cs" />
