@@ -488,10 +488,7 @@ namespace SW2URDF.URDFExport
             // GLB export uses the currently selected assembly components.
             // ShowComponents() performs a selection internally, but explicitly
             // select them again immediately before SaveAs().
-            CommonSwOperations.SelectComponents(
-                ActiveSWModel,
-                link.SWComponents,
-                true);
+            SelectGlbBodies(link.SWComponents);
         
             logger.Info("Saving GLB to " + windowsMeshFilename);
         
@@ -521,6 +518,76 @@ namespace SW2URDF.URDFExport
                     "SolidWorks could not export GLB for " +
                     link.Name +
                     ". Error: " + errors);
+            }
+        }
+
+        private void SelectGlbBodies(List<Component2> components)
+        {
+            ActiveSWModel.ClearSelection2(true);
+        
+            SelectionMgr manager = ActiveSWModel.SelectionManager;
+            SelectData data = manager.CreateSelectData();
+        
+            var visited = new HashSet<string>(StringComparer.Ordinal);
+        
+            foreach (Component2 component in components)
+            {
+                SelectGlbBodiesRecursive(component, data, visited);
+            }
+        }
+        
+        private void SelectGlbBodiesRecursive(
+            Component2 component,
+            SelectData data,
+            HashSet<string> visited)
+        {
+            if (component == null ||
+                component.IsSuppressed() ||
+                !visited.Add(component.Name2))
+            {
+                return;
+            }
+        
+            // If this is a subassembly, descend to its children.
+            var children = (object[])component.GetChildren();
+        
+            if (children != null && children.Length > 0)
+            {
+                foreach (Component2 child in children)
+                {
+                    SelectGlbBodiesRecursive(child, data, visited);
+                }
+        
+                return;
+            }
+        
+            ModelDoc2 document = (ModelDoc2)component.GetModelDoc2();
+        
+            if (document == null ||
+                document.GetType() != (int)swDocumentTypes_e.swDocPART)
+            {
+                return;
+            }
+        
+            foreach (int bodyType in new[]
+            {
+                (int)swBodyType_e.swSolidBody,
+                (int)swBodyType_e.swSheetBody
+            })
+            {
+                var bodies = (object[])component.GetBodies3(
+                    bodyType,
+                    out _);
+        
+                if (bodies == null)
+                {
+                    continue;
+                }
+        
+                foreach (Body2 body in bodies)
+                {
+                    body.Select2(true, data);
+                }
             }
         }
 
