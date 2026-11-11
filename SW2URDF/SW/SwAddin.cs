@@ -20,6 +20,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
+using System.IO;
+using System.Reflection;
 using SolidWorks.Interop.sldworks;
 using SolidWorks.Interop.swconst;
 using SolidWorks.Interop.swpublished;
@@ -172,7 +174,29 @@ namespace SW2URDF.SW
 
         public SwAddin()
         {
+            AppDomain.CurrentDomain.AssemblyResolve += ResolveAssemblyFromAddinDirectory;
             Logger.Setup();
+        }
+
+        private static Assembly ResolveAssemblyFromAddinDirectory(object sender, ResolveEventArgs args)
+        {
+            AssemblyName requested = new AssemblyName(args.Name);
+            string directory = Path.GetDirectoryName(typeof(SwAddin).Assembly.Location);
+            string path = Path.Combine(directory, requested.Name + ".dll");
+        
+            if (!File.Exists(path))
+            {
+                return null;
+            }
+        
+            try
+            {
+                return Assembly.LoadFrom(path);
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         private void ExceptionHandler(object sender, ThreadExceptionEventArgs e)
