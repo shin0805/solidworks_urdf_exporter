@@ -486,8 +486,7 @@ namespace SW2URDF.URDFExport
         
             // IMPORTANT:
             // GLB export uses the currently selected bodies.
-            // ShowComponents() performs a selection internally, but explicitly
-            // select them again immediately before SaveAs().
+            // Select the bodies belonging to this link immediately before SaveAs().
             SelectGlbBodies(link.SWComponents);
 
             int selectedBodyCount = ActiveSWModel.SelectionManager.GetSelectedObjectCount2(-1);
