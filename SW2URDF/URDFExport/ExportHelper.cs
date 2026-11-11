@@ -291,7 +291,7 @@ namespace SW2URDF.URDFExport
             }
 
             // Copy the texture file (if it was specified) to the textures directory
-            if (meshFormat != MeshExportFormat.DAE && !link.isFixedFrame && !String.IsNullOrWhiteSpace(link.Visual.Material.Texture.wFilename))
+            if (meshFormat != MeshExportFormat.DAE && meshFormat != MeshExportFormat.GLB && !link.isFixedFrame && !String.IsNullOrWhiteSpace(link.Visual.Material.Texture.wFilename))
             {
                 if (File.Exists(link.Visual.Material.Texture.wFilename))
                 {
@@ -325,6 +325,11 @@ namespace SW2URDF.URDFExport
                     windowsMeshFileName += ".dae";
                     break;
 
+                case MeshExportFormat.GLB:
+                    meshFilename += ".glb";
+                    windowsMeshFileName += ".glb";
+                    break;
+
                 default:
                     meshFilename += ".STL";
                     windowsMeshFileName += ".STL";
@@ -345,6 +350,10 @@ namespace SW2URDF.URDFExport
 
                     case MeshExportFormat.DAE:
                         SaveDae(link, windowsMeshFileName);
+                        break;
+
+                    case MeshExportFormat.GLB:
+                        SaveGlb(link, windowsMeshFileName);
                         break;
 
                     default:
@@ -444,6 +453,58 @@ namespace SW2URDF.URDFExport
                     " or warnings " + warnings);
             }
             CommonSwOperations.HideComponents(ActiveSWModel, link.SWComponents);
+        }
+
+        private bool SaveGlb(Link link, string windowsMeshFilename)
+        {
+            int errors = 0;
+            int warnings = 0;
+        
+            string coordsysName = link.Joint.CoordinateSystemName;
+        
+            logger.Info(link.Name + ": Exporting GLB with coordinate frame " + coordsysName);
+        
+            Dictionary<string, string> names = GetComponentRefGeoNames(coordsysName);
+            ModelDoc2 ActiveDoc = ActiveSWModel;
+        
+            logger.Info(link.Name + ": Reference geometry name " + names["component"]);
+        
+            CommonSwOperations.ShowComponents(ActiveSWModel, link.SWComponents);
+        
+            int saveOptions =
+                (int)swSaveAsOptions_e.swSaveAsOptions_Silent |
+                (int)swSaveAsOptions_e.swSaveAsOptions_Copy;
+        
+            // Use the same output coordinate system mechanism as STL.
+            // We will first test whether SolidWorks applies this to GLB export as well.
+            SetLinkSpecificSTLPreferences(
+                names["geo"],
+                link.STLQualityFine,
+                ActiveDoc);
+        
+            logger.Info("Saving GLB to " + windowsMeshFilename);
+        
+            bool success = ActiveDoc.Extension.SaveAs(
+                windowsMeshFilename,
+                (int)swSaveAsVersion_e.swSaveAsCurrentVersion,
+                saveOptions,
+                null,
+                ref errors,
+                ref warnings);
+        
+            if (errors + warnings != 0)
+            {
+                logger.Warn(
+                    "Exporting GLB for link " + link.Name +
+                    " failed with error " + errors +
+                    " or warnings " + warnings);
+            }
+        
+            CommonSwOperations.HideComponents(
+                ActiveSWModel,
+                link.SWComponents);
+        
+            return success && errors == 0;
         }
 
         private bool SaveSTL(Link link, string windowsMeshFilename)

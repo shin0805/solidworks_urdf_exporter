@@ -330,6 +330,10 @@ namespace SW2URDF.UI
                 {
                     meshFormat = MeshExportFormat.DAE;
                 }
+                else if (radioButtonGlb.Checked)
+                {
+                    meshFormat = MeshExportFormat.GLB;
+                }
                 else if(radioButton3dxml.Checked)
                 {
                     meshFormat = MeshExportFormat.THREEDXML;
@@ -351,20 +355,29 @@ namespace SW2URDF.UI
             buttonLinksFinish.Text = "Export " + format + " and Meshes...";
         }
 
-        private void DaeFormatChanged(object sender, EventArgs e)
+        private void ColorMeshFormatChanged(object sender, EventArgs e)
         {
             MeshDetailChanged(sender, e);
-            bool dae = radioButtonDae.Checked;
-            radioButtonCourse.Enabled = !dae;
-            radioButtonFine.Enabled = !dae;
-            label10.Text = dae ? "Model image quality" : "Mesh Detail";
-            comboBoxMaterials.Enabled = !dae;
-            domainUpDownRed.Enabled = !dae;
-            domainUpDownGreen.Enabled = !dae;
-            domainUpDownBlue.Enabled = !dae;
-            domainUpDownAlpha.Enabled = !dae;
-            textBoxTexture.Enabled = !dae;
-            buttonTextureBrowse.Enabled = !dae;
+        
+            bool embeddedAppearance =
+                radioButtonDae.Checked ||
+                radioButtonGlb.Checked;
+        
+            radioButtonCourse.Enabled = !embeddedAppearance;
+            radioButtonFine.Enabled = !embeddedAppearance;
+        
+            label10.Text =
+                embeddedAppearance
+                ? "Model image quality"
+                : "Mesh Detail";
+        
+            comboBoxMaterials.Enabled = !embeddedAppearance;
+            domainUpDownRed.Enabled = !embeddedAppearance;
+            domainUpDownGreen.Enabled = !embeddedAppearance;
+            domainUpDownBlue.Enabled = !embeddedAppearance;
+            domainUpDownAlpha.Enabled = !embeddedAppearance;
+            textBoxTexture.Enabled = !embeddedAppearance;
+            buttonTextureBrowse.Enabled = !embeddedAppearance;
         }
 
         private void MeshDetailChanged(object sender, EventArgs e)

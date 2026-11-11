@@ -75,6 +75,7 @@ namespace SW2URDF.Test
         [InlineData(MeshExportFormat.STL, ".STL")]
         [InlineData(MeshExportFormat.THREEDXML, ".3dxml")]
         [InlineData(MeshExportFormat.DAE, ".dae")]
+        [InlineData(MeshExportFormat.GLB, ".glb")]
         public void ExportWithoutMeshesUsesConfiguredReferences(MeshExportFormat format, string extension)
         {
             var exporter = (ExportHelper)System.Runtime.Serialization.FormatterServices.GetUninitializedObject(typeof(ExportHelper));

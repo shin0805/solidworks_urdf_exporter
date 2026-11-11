@@ -1563,6 +1563,7 @@ namespace SW2URDF.URDFExport
     {
         STL,
         THREEDXML,
-        DAE
+        DAE,
+        GLB
     }
 }

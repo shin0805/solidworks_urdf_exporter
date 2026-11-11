@@ -75,6 +75,7 @@
             this.radioButton3dxml = new System.Windows.Forms.RadioButton();
             this.radioButtonStl = new System.Windows.Forms.RadioButton();
             this.radioButtonDae = new System.Windows.Forms.RadioButton();
+            this.radioButtonGlb = new System.Windows.Forms.RadioButton();
             this.radioButtonFine = new System.Windows.Forms.RadioButton();
             this.radioButtonCourse = new System.Windows.Forms.RadioButton();
             this.radioButtonFaceLimit = new System.Windows.Forms.RadioButton();
@@ -606,9 +607,10 @@
             this.groupBox1.Controls.Add(this.radioButton3dxml);
             this.groupBox1.Controls.Add(this.radioButtonStl);
             this.groupBox1.Controls.Add(this.radioButtonDae);
+            this.groupBox1.Controls.Add(this.radioButtonGlb);
             this.groupBox1.Location = new System.Drawing.Point(184, 147);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(122, 75);
+            this.groupBox1.Size = new System.Drawing.Size(230, 75);
             this.groupBox1.TabIndex = 74;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Mesh Format";
@@ -617,7 +619,7 @@
             //
             this.groupBoxRobotFormat.Controls.Add(this.radioButtonUrdf);
             this.groupBoxRobotFormat.Controls.Add(this.radioButtonXacro);
-            this.groupBoxRobotFormat.Location = new System.Drawing.Point(320, 147);
+            this.groupBoxRobotFormat.Location = new System.Drawing.Point(428, 147);
             this.groupBoxRobotFormat.Name = "groupBoxRobotFormat";
             this.groupBoxRobotFormat.Size = new System.Drawing.Size(122, 75);
             this.groupBoxRobotFormat.TabIndex = 75;
@@ -650,7 +652,7 @@
             // radioButton3dxml
             // 
             this.radioButton3dxml.AutoSize = true;
-            this.radioButton3dxml.Location = new System.Drawing.Point(11, 36);
+            this.radioButton3dxml.Location = new System.Drawing.Point(11, 46);
             this.radioButton3dxml.Name = "radioButton3dxml";
             this.radioButton3dxml.Size = new System.Drawing.Size(90, 16);
             this.radioButton3dxml.TabIndex = 1;
@@ -672,13 +674,24 @@
             this.radioButtonStl.CheckedChanged += new System.EventHandler(this.MeshDetailChanged);
             // radioButtonDae
             this.radioButtonDae.AutoSize = true;
-            this.radioButtonDae.Location = new System.Drawing.Point(11, 54);
+            this.radioButtonDae.Location = new System.Drawing.Point(125, 18);
             this.radioButtonDae.Name = "radioButtonDae";
             this.radioButtonDae.Size = new System.Drawing.Size(90, 16);
             this.radioButtonDae.TabIndex = 2;
             this.radioButtonDae.Text = "DAE (color)";
             this.radioButtonDae.UseVisualStyleBackColor = true;
-            this.radioButtonDae.CheckedChanged += new System.EventHandler(this.DaeFormatChanged);
+            this.radioButtonDae.CheckedChanged += new System.EventHandler(this.ColorMeshFormatChanged);
+            //
+            // radioButtonGlb
+            //
+            this.radioButtonGlb.AutoSize = true;
+            this.radioButtonGlb.Location = new System.Drawing.Point(125, 46);
+            this.radioButtonGlb.Name = "radioButtonGlb";
+            this.radioButtonGlb.Size = new System.Drawing.Size(90, 16);
+            this.radioButtonGlb.TabIndex = 3;
+            this.radioButtonGlb.Text = "GLB (color)";
+            this.radioButtonGlb.UseVisualStyleBackColor = true;
+            this.radioButtonGlb.CheckedChanged += new System.EventHandler(this.ColorMeshFormatChanged);
             // 
             // radioButtonFine
             // 
@@ -1968,5 +1981,6 @@
         private System.Windows.Forms.RadioButton radioButtonXacro;
         private System.Windows.Forms.RadioButton radioButtonStl;
         private System.Windows.Forms.RadioButton radioButtonDae;
+        private System.Windows.Forms.RadioButton radioButtonGlb;
     }
 }
