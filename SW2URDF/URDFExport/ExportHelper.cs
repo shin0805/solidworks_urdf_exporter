@@ -335,7 +335,7 @@ namespace SW2URDF.URDFExport
                     windowsMeshFileName += ".STL";
                     break;
             }
-            // Export STL
+            // Export mesh
             if (exportSTL)
             {
                 switch (meshFormat)
@@ -455,7 +455,7 @@ namespace SW2URDF.URDFExport
             CommonSwOperations.HideComponents(ActiveSWModel, link.SWComponents);
         }
 
-        private bool SaveGlb(Link link, string windowsMeshFilename)
+        void bool SaveGlb(Link link, string windowsMeshFilename)
         {
             int errors = 0;
             int warnings = 0;
@@ -504,7 +504,13 @@ namespace SW2URDF.URDFExport
                 ActiveSWModel,
                 link.SWComponents);
         
-            return success && errors == 0;
+            if (!success || errors != 0)
+            {
+                throw new IOException(
+                    "SolidWorks could not export GLB for " +
+                    link.Name +
+                    ". Error: " + errors);
+            }
         }
 
         private bool SaveSTL(Link link, string windowsMeshFilename)
