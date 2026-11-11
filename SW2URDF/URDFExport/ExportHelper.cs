@@ -455,7 +455,7 @@ namespace SW2URDF.URDFExport
             CommonSwOperations.HideComponents(ActiveSWModel, link.SWComponents);
         }
 
-        void bool SaveGlb(Link link, string windowsMeshFilename)
+        private void SaveGlb(Link link, string windowsMeshFilename)
         {
             int errors = 0;
             int warnings = 0;
