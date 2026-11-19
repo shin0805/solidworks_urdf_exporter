@@ -158,6 +158,8 @@ namespace SW2URDF.Test
 
         [Theory]
         [InlineData(".dae", false)]
+        [InlineData(".glb", false)]
+        [InlineData(".GLB", false)]
         [InlineData(".STL", true)]
         public void EmbeddedColorsAreNotOverriddenByUrdfMaterial(string extension, bool hasMaterial)
         {
